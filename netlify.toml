@@ -5,11 +5,7 @@
 [build.environment]
   NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
-  NEXT_PRIVATE_TARGET = "serverless"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["app/**/*", "lib/**/*"]
+  included_files = ["node_modules/sql.js/dist/sql-wasm.wasm"]

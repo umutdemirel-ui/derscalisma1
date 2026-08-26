@@ -3,6 +3,8 @@ import { requireAuth, createAuthError, createSuccessResponse } from "@/lib/api/m
 import { getDb } from "@/lib/db/database";
 import { randomUUID } from "crypto";
 
+const MOCK_USER_ID = "anonymous-user";
+
 function chunkText(text: string, maxChunkSize = 1000, overlap = 200): string[] {
   const chunks: string[] = [];
   let start = 0;
@@ -33,8 +35,7 @@ function chunkText(text: string, maxChunkSize = 1000, overlap = 200): string[] {
 }
 
 export async function POST(request: NextRequest) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   try {
     const formData = await request.formData();
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
     const stmt = db.prepare(`
       SELECT id FROM notebooks WHERE id = ? AND user_id = ?
     `);
-    const notebook = stmt.get(notebookId, user!.id) as any;
+    const notebook = stmt.get(notebookId, user.id) as any;
     stmt.free();
 
     if (!notebook) {

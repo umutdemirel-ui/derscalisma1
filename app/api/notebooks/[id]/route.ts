@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, createAuthError, createSuccessResponse } from "@/lib/api/middleware";
 import { getDb } from "@/lib/db/database";
 
+const MOCK_USER_ID = "anonymous-user";
+
 async function checkNotebookOwnership(db: any, notebookId: string, userId: string) {
   const stmt = db.prepare(`
     SELECT id FROM notebooks WHERE id = ? AND user_id = ?
@@ -15,13 +17,12 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   const { id } = await params;
   const db = await getDb();
 
-  const notebook = await checkNotebookOwnership(db, id, user!.id);
+  const notebook = await checkNotebookOwnership(db, id, user.id);
   if (!notebook) {
     return createAuthError("NOT_FOUND", "Not defteri bulunamadı", 404);
   }
@@ -40,12 +41,11 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   const { id } = await params;
   const db = await getDb();
-  const notebook = await checkNotebookOwnership(db, id, user!.id);
+  const notebook = await checkNotebookOwnership(db, id, user.id);
   if (!notebook) {
     return createAuthError("NOT_FOUND", "Not defteri bulunamadı", 404);
   }
@@ -78,12 +78,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   const { id } = await params;
   const db = await getDb();
-  const notebook = await checkNotebookOwnership(db, id, user!.id);
+  const notebook = await checkNotebookOwnership(db, id, user.id);
   if (!notebook) {
     return createAuthError("NOT_FOUND", "Not defteri bulunamadı", 404);
   }

@@ -1,8 +1,13 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { logoutUser } from "@/lib/auth/auth";
-import { createSuccessResponse } from "@/lib/api/middleware";
+import { createSuccessResponse, withErrorHandling } from "@/lib/api/middleware";
 
-export async function POST() {
+async function POST_impl() {
   await logoutUser();
   return createSuccessResponse({ message: "Çıkış yapıldı" });
 }
+
+export const POST = withErrorHandling(POST_impl);

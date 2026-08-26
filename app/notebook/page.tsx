@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth/AuthProvider";
-import { ProtectedRoute } from "@/lib/auth/ProtectedRoute";
 
 interface Notebook {
   id: string;
@@ -26,17 +23,13 @@ interface Message {
   content: string;
 }
 
+const MOCK_USER_ID = "anonymous-user";
+
 export default function NotebookPage() {
-  return (
-    <ProtectedRoute>
-      <NotebookContent />
-    </ProtectedRoute>
-  );
+  return <NotebookContent />;
 }
 
 function NotebookContent() {
-  const router = useRouter();
-  const { logout } = useAuth();
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [selectedNotebook, setSelectedNotebook] = useState<Notebook | null>(null);
@@ -62,11 +55,7 @@ function NotebookContent() {
 
   async function loadNotebooks() {
     try {
-      const res = await fetch("/api/notebooks", { credentials: "include" });
-      if (res.status === 401) {
-        router.push("/login");
-        return;
-      }
+      const res = await fetch("/api/notebooks");
       const data = await res.json();
       if (data.notebooks) setNotebooks(data.notebooks);
     } catch {
@@ -76,7 +65,7 @@ function NotebookContent() {
 
   async function loadAchievements() {
     try {
-      const res = await fetch("/api/achievements", { credentials: "include" });
+      const res = await fetch("/api/achievements");
       const data = await res.json();
       if (data.achievements) setAchievements(data.achievements);
     } catch {
@@ -92,7 +81,6 @@ function NotebookContent() {
       const res = await fetch("/api/notebooks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
           title: newNotebookTitle || "Adsız defter",
           achievement_id: newNotebookAchievement || null,
@@ -127,7 +115,6 @@ function NotebookContent() {
     try {
       const res = await fetch(`/api/notebooks/${id}`, {
         method: "DELETE",
-        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Silme başarısız");
@@ -153,7 +140,6 @@ function NotebookContent() {
     try {
       const res = await fetch("/api/upload", {
         method: "POST",
-        credentials: "include",
         body: formData,
       });
 
@@ -186,7 +172,6 @@ function NotebookContent() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ notebookId: selectedNotebook.id, question: userMessage }),
       });
 
@@ -203,12 +188,6 @@ function NotebookContent() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function handleLogout() {
-    await logout();
-    router.push("/login");
-    router.refresh();
   }
 
   function formatDate(dateStr: string) {
@@ -270,15 +249,6 @@ function NotebookContent() {
               )}
             </ul>
           </nav>
-
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            <button
-              onClick={handleLogout}
-              className="w-full py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
-            >
-              Çıkış Yap
-            </button>
-          </div>
         </div>
       </aside>
 

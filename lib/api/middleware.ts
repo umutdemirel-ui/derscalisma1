@@ -1,25 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession, getCurrentUser } from "@/lib/auth/auth";
 
-export async function requireAuth(request: NextRequest): Promise<{ user: Awaited<ReturnType<typeof getCurrentUser>>; response?: NextResponse }> {
-  const user = await getCurrentUser();
+const MOCK_USER_ID = "anonymous-user";
 
-  if (!user) {
-    return {
-      user: null,
-      response: NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "Giriş yapmalısınız" } },
-        { status: 401 }
-      ),
-    };
-  }
-
-  return { user };
+export async function requireAuth(request: NextRequest): Promise<{ user: { id: string }; response?: NextResponse }> {
+  return { user: { id: MOCK_USER_ID } };
 }
 
-export async function optionalAuth(request: NextRequest): Promise<{ user: Awaited<ReturnType<typeof getCurrentUser>> }> {
-  const user = await getCurrentUser();
-  return { user };
+export async function optionalAuth(request: NextRequest): Promise<{ user: { id: string } }> {
+  return { user: { id: MOCK_USER_ID } };
 }
 
 export function createAuthError(code: string, message: string, status: number = 400) {

@@ -1,8 +1,11 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { registerUser, loginUser, validateEmail, validatePassword, validateUsername, setSessionCookie } from "@/lib/auth/auth";
-import { rateLimit, getClientIp, createAuthError, createSuccessResponse } from "@/lib/api/middleware";
+import { rateLimit, getClientIp, createAuthError, createSuccessResponse, withErrorHandling } from "@/lib/api/middleware";
 
-export async function POST(request: NextRequest) {
+async function POST_impl(request: NextRequest) {
   const ip = getClientIp(request);
   const rl = rateLimit(`register:${ip}`, 5, 60000);
   if (!rl.allowed) {
@@ -58,3 +61,5 @@ export async function POST(request: NextRequest) {
     return createAuthError("SERVER_ERROR", "Kayıt sırasında bir hata oluştu", 500);
   }
 }
+
+export const POST = withErrorHandling(POST_impl);

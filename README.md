@@ -134,3 +134,7 @@ curl -X POST http://localhost:3000/api/embeddings \
 ## Lisans
 
 MIT
+
+## Otomatik Misafir Girişi
+
+Bu sürümde kullanıcı girişi/kayıt ekranı kaldırılmıştır. Ana sayfaya gelen ziyaretçi otomatik olarak bir misafir hesabı ve oturumla uygulamaya alınır.

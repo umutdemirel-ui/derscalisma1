@@ -5,9 +5,10 @@ import { embedText } from "@/lib/embeddings";
 import { randomUUID } from "crypto";
 import { getOpenAI } from "@/lib/openai";
 
+const MOCK_USER_ID = "anonymous-user";
+
 export async function POST(request: NextRequest) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   try {
     const { notebookId, questionCount = 5 } = await request.json();
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     const stmt = db.prepare(`
       SELECT id FROM notebooks WHERE id = ? AND user_id = ?
     `);
-    const notebook = stmt.get([notebookId, user!.id]) as any;
+    const notebook = stmt.get([notebookId, user.id]) as any;
     stmt.free();
 
     if (!notebook) {
@@ -107,8 +108,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   const { searchParams } = new URL(request.url);
   const notebookId = searchParams.get("notebookId");
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
   const stmt = db.prepare(`
     SELECT id FROM notebooks WHERE id = ? AND user_id = ?
   `);
-  const notebook = stmt.get([notebookId, user!.id]) as any;
+  const notebook = stmt.get([notebookId, user.id]) as any;
   stmt.free();
 
   if (!notebook) {

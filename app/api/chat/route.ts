@@ -4,9 +4,10 @@ import { getDb } from "@/lib/db/database";
 import { getOpenAI } from "@/lib/openai";
 import { embedText } from "@/lib/embeddings";
 
+const MOCK_USER_ID = "anonymous-user";
+
 export async function POST(request: NextRequest) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   try {
     const { notebookId, question } = await request.json();
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
     const stmt = db.prepare(`
       SELECT id FROM notebooks WHERE id = ? AND user_id = ?
     `);
-    const notebook = stmt.get([notebookId, user!.id]) as any;
+    const notebook = stmt.get([notebookId, user.id]) as any;
     stmt.free();
 
     if (!notebook) {

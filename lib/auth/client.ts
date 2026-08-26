@@ -19,6 +19,31 @@ export interface AuthState {
 
 type AuthListener = (state: AuthState) => void;
 
+async function readApiResponse(res: Response): Promise<any> {
+  const contentType = res.headers.get("content-type") || "";
+  const raw = await res.text();
+
+  if (!contentType.includes("application/json")) {
+    console.error("API JSON yerine yanıt döndürdü:", {
+      status: res.status,
+      contentType,
+      url: res.url,
+      body: raw.slice(0, 500),
+    });
+    throw new Error(
+      res.status === 404
+        ? "API endpoint bulunamadı. Netlify deploy ayarlarını kontrol edin."
+        : "Sunucu JSON yerine HTML/başka bir yanıt döndürdü. Netlify Functions loglarını kontrol edin."
+    );
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw new Error("Sunucudan geçersiz JSON yanıtı geldi.");
+  }
+}
+
 class AuthClient {
   private state: AuthState = {
     user: null,
@@ -50,7 +75,7 @@ class AuthClient {
 
     try {
       const res = await fetch("/api/auth/me", { credentials: "include" });
-      const data = await res.json();
+      const data = await readApiResponse(res);
 
       if (data.authenticated && data.user) {
         this.setState({
@@ -84,7 +109,7 @@ class AuthClient {
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await res.json();
+    const data = await readApiResponse(res);
 
     if (!res.ok || !data.success) {
       const message = data.error?.message || "Giriş başarısız";
@@ -112,7 +137,7 @@ class AuthClient {
       body: JSON.stringify({ username, email, password }),
     });
 
-    const data = await res.json();
+    const data = await readApiResponse(res);
 
     if (!res.ok || !data.success) {
       const message = data.error?.message || "Kayıt başarısız";
@@ -153,7 +178,7 @@ class AuthClient {
   async refresh(): Promise<void> {
     try {
       const res = await fetch("/api/auth/me", { credentials: "include" });
-      const data = await res.json();
+      const data = await readApiResponse(res);
 
       if (data.authenticated && data.user) {
         this.setState({

@@ -55,8 +55,7 @@ async function generateEmbeddings(texts: string[]): Promise<number[][]> {
 }
 
 export async function POST(request: NextRequest) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   try {
     const { chunkIds } = await request.json();
@@ -103,8 +102,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   const db = await getDb();
   const stmt = db.prepare(`

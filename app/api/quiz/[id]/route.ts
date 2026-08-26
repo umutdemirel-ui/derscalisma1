@@ -3,12 +3,13 @@ import { requireAuth, createAuthError, createSuccessResponse } from "@/lib/api/m
 import { getDb } from "@/lib/db/database";
 import { randomUUID } from "crypto";
 
+const MOCK_USER_ID = "anonymous-user";
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { user, response } = await requireAuth(request);
-  if (response) return response;
+  const { user } = await requireAuth(request);
 
   const { id } = await params;
   const { answers } = await request.json();
@@ -36,7 +37,7 @@ export async function POST(
     const isCorrect = question.correct_answer === a.givenAnswer;
     return {
       question_id: a.questionId,
-      user_id: user!.id,
+      user_id: user.id,
       given_answer: a.givenAnswer,
       is_correct: isCorrect ? 1 : 0,
     };

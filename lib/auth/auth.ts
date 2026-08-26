@@ -83,9 +83,40 @@ export async function getSession(): Promise<SessionPayload | null> {
 
 export async function getCurrentUser(): Promise<User | null> {
   const session = await getSession();
-  if (!session) return null;
-
   const db = await getDb();
+
+  // Login/register are disabled for this version. If a visitor has no session,
+  // create a lightweight guest account automatically and persist a normal
+  // session cookie so all existing user-scoped features keep working.
+  if (!session) {
+    const guestId = randomUUID();
+    const suffix = guestId.replace(/-/g, "").slice(0, 12);
+    const username = `Misafir_${suffix}`;
+    const email = `guest-${suffix}@local.invalid`;
+    const now = new Date().toISOString();
+
+    db.prepare(`
+      INSERT INTO users (id, username, email, password_hash, display_name, role, is_active, created_at, updated_at, last_login_at)
+      VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+    `).run(guestId, username, email, "guest-account", "Misafir Kullanıcı", "guest", now, now, now);
+
+    const token = await createSession(guestId);
+    setSessionCookie(token);
+
+    return {
+      id: guestId,
+      username,
+      email,
+      display_name: "Misafir Kullanıcı",
+      avatar: null,
+      email_verified: 0,
+      role: "guest",
+      is_active: 1,
+      created_at: now,
+      last_login_at: now,
+    };
+  }
+
   const sessionRow = db.prepare(`
     SELECT s.*, u.id, u.username, u.email, u.display_name, u.avatar, u.email_verified, u.role, u.is_active, u.created_at, u.last_login_at
     FROM sessions s

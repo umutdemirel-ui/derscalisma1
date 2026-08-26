@@ -1,8 +1,11 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/auth";
-import { createSuccessResponse } from "@/lib/api/middleware";
+import { createSuccessResponse, withErrorHandling } from "@/lib/api/middleware";
 
-export async function GET() {
+async function GET_impl() {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -24,3 +27,5 @@ export async function GET() {
     },
   });
 }
+
+export const GET = withErrorHandling(GET_impl);

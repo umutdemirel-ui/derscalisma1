@@ -6,7 +6,6 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const db = await getDb();
-  // @ts-ignore - sql.js Statement has all() method
   const stmt = db.prepare(`
     SELECT id, kazanim_kodu, ders_adi, sinif_seviyesi, aciklama
     FROM achievements

@@ -15,7 +15,7 @@ export function ProtectedRoute({ children, fallback = null }: ProtectedRouteProp
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.push("/login");
+      router.push("/notebook");
     }
   }, [isAuthenticated, loading, router]);
 
