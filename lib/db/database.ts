@@ -2,16 +2,17 @@ import initSqlJs from "sql.js";
 import { join } from "path";
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "fs";
 
-type Database = any;
-type Statement = any;
+const isNetlify = !!process.env.NETLIFY;
+const DATA_DIR = isNetlify ? "/tmp/data" : join(process.cwd(), "data");
 
-const DATA_DIR = join(process.cwd(), "data");
 if (!existsSync(DATA_DIR)) {
   mkdirSync(DATA_DIR, { recursive: true });
 }
 
 const DB_PATH = join(DATA_DIR, "app.db");
 const SQL_WASM_PATH = join(process.cwd(), "node_modules", "sql.js", "dist", "sql-wasm.wasm");
+
+type Database = any;
 
 let db: Database | null = null;
 let isInitialized = false;
@@ -60,7 +61,7 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-function initDatabase(db: Database) {
+function initDatabase(db: any) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
@@ -166,7 +167,7 @@ function initDatabase(db: Database) {
   seedAchievements(db);
 }
 
-function seedAchievements(db: Database) {
+function seedAchievements(db: any) {
   const count = db.exec("SELECT COUNT(*) as c FROM achievements");
   if (count[0]?.values[0]?.[0] > 0) return;
 
@@ -257,8 +258,8 @@ function seedAchievements(db: Database) {
   stmt.free();
 }
 
-let _dbPromise: Promise<Database> | null = null;
-export function getDbSync(): Database {
+let _dbPromise: Promise<any> | null = null;
+export function getDbSync(): any {
   if (!db) {
     throw new Error("Database not initialized. Call getDb() first.");
   }
