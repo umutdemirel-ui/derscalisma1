@@ -1,0 +1,33 @@
+{
+  "name": "ders-calisma-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "db:init": "tsx scripts/init-db.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@types/sql.js": "^1.4.11",
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.6.0",
+    "jose": "^5.2.0",
+    "next": "^14.2.0",
+    "openai": "^7.5.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "sql.js": "^1.14.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie": "^0.6.0",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.5"
+  }
+}
